@@ -33,7 +33,7 @@ class EksStack(cdk.Stack):
         )
 
         # Creating Cluster with EKS
-        eks_cluster = aws_eks.Cluster(
+        self.cluster = aws_eks.Cluster(
             scope=self,
             id=f'{construct_id}-cluster',
             cluster_name=f'{construct_id}-cluster',
@@ -54,8 +54,12 @@ class EksStack(cdk.Stack):
         )
 
         # Self-managed nodes
-        eks_cluster.add_auto_scaling_group_capacity(
+        self.cluster.add_auto_scaling_group_capacity(
             id='self-managed-node-group',
             instance_type=aws_ec2.InstanceType('t3.large'),
             max_capacity=10
         )
+
+    @property
+    def get_cluster(self):
+        return self.cluster
