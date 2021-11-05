@@ -1,4 +1,5 @@
 from aws_cdk import core as cdk
+from aws_cdk import aws_eks
 import yaml
 
 
@@ -7,7 +8,7 @@ class ContainerStack(cdk.Stack):
     def __init__(self,
                  scope: cdk.Construct,
                  construct_id: str,
-                 cluster,  # add parameter
+                 cluster: aws_eks.Cluster,  # add parameter
                  **kwargs) -> None:
 
         super().__init__(scope, construct_id, **kwargs)
@@ -33,4 +34,15 @@ class ContainerStack(cdk.Stack):
         cluster.add_manifest(
             f'{construct_id}-{region}-yaml',
             region_yaml
+        )
+
+        # Helm Chart - flux CD
+        cluster.add_helm_chart(
+            id='flux',
+            repository='https://charts.fluxcd.io',
+            chart='flux',
+            release='flux',
+            values={
+                'git.url': 'git@github.com:org/repo'
+            }
         )
