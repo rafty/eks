@@ -1,34 +1,27 @@
 #!/usr/bin/env python3
 import os
-
 from aws_cdk import core as cdk
-
-# For consistency with TypeScript code, `cdk` is the preferred import name for
-# the CDK's core module.  The following line also imports it as `core` for use
-# with examples from the CDK Developer's Guide, which are in the process of
-# being updated to use `cdk`.  You may delete this import if you don't need it.
-from aws_cdk import core
-
 from eks.eks_stack import EksStack
+from master_vpc.vpc import VpcStack
 
 
-app = core.App()
-EksStack(app, "EksStack",
-    # If you don't specify 'env', this stack will be environment-agnostic.
-    # Account/Region-dependent features and context lookups will not work,
-    # but a single synthesized template can be deployed anywhere.
+app = cdk.App()
 
-    # Uncomment the next line to specialize this stack for the AWS Account
-    # and Region that are implied by the current CLI configuration.
+account = os.getenv('CDK_DEFAULT_ACCOUNT')
+master_region = 'ap-northeast-1'
+secondary_region = 'ap-northeast-2'
 
-    #env=core.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+vpc_stack = VpcStack(
+    scope=app,
+    construct_id=f'eks-cluster-vpc-{master_region}',
+    env=cdk.Environment(account=account, region=master_region)
+)
 
-    # Uncomment the next line if you know exactly what Account and Region you
-    # want to deploy the stack to. */
-
-    #env=core.Environment(account='123456789012', region='us-east-1'),
-
-    # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-    )
+eks_stack = EksStack(
+    scope=app,
+    construct_id=f'eks-cluster-stack-{master_region}',
+    env=cdk.Environment(account=account, region=master_region),
+    vpc=vpc_stack.vpc
+)
 
 app.synth()
