@@ -18,14 +18,24 @@ class ContainerStack(cdk.Stack):
         common_yaml_file = './yaml-common/00_namespaces.yaml'
         region_yaml_file = f'./yaml-{region}/00_ap_nginx.yaml'
 
+        # # Read common yaml
+        # with open(common_yaml_file, 'r') as stream:
+        #     common_yaml = yaml.load(stream, Loader=yaml.FullLoader)
+        #
+        # cluster.add_manifest(
+        #     f'{construct_id}-common-yaml',
+        #     common_yaml
+        # )
         # Read common yaml
         with open(common_yaml_file, 'r') as stream:
-            common_yaml = yaml.load(stream, Loader=yaml.FullLoader)
+            common_docs = list(
+                yaml.load_all(stream, Loader=yaml.FullLoader))
 
-        cluster.add_manifest(
-            f'{construct_id}-common-yaml',
-            common_yaml
-        )
+        for doc in common_docs:
+            cluster.add_manifest(
+                f'{doc["metadata"]["name"]}-common-yaml',
+                doc
+            )
 
         # Read region yaml
         with open(region_yaml_file, 'r') as stream:

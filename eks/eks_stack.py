@@ -2,7 +2,6 @@ from aws_cdk import core as cdk
 from aws_cdk import aws_iam
 from aws_cdk import aws_eks
 from aws_cdk import aws_ec2
-import yaml
 
 
 class EksStack(cdk.Stack):
@@ -46,9 +45,14 @@ class EksStack(cdk.Stack):
             ],
             masters_role=iam_role,
             default_capacity=2,
-            default_capacity_instance=aws_ec2.InstanceType.of(
-                aws_ec2.InstanceClass.BURSTABLE2,
-                aws_ec2.InstanceSize.MICRO),
+            # default_capacity_instance=aws_ec2.InstanceType.of(
+            #     aws_ec2.InstanceClass.BURSTABLE2,
+            #     aws_ec2.InstanceSize.MICRO),
+            default_capacity_instance=(
+                aws_ec2.InstanceType('t2.large')
+                if cdk.Stack.of(self).region == 'ap-northeast-1'
+                else aws_ec2.InstanceType('t3.large')
+            ),
             version=aws_eks.KubernetesVersion.V1_21,
             endpoint_access=aws_eks.EndpointAccess.PUBLIC
         )
