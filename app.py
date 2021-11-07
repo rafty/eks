@@ -9,7 +9,7 @@ app = cdk.App()
 
 account = os.getenv('CDK_DEFAULT_ACCOUNT')
 primary_region = 'ap-northeast-1'
-secondary_region = 'ap-northeast-2'
+secondary_region = 'ap-northeast-3'
 
 # -------------------------------------------------------------
 # Primary VPC

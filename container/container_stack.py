@@ -1,6 +1,7 @@
 from aws_cdk import core as cdk
 from aws_cdk import aws_eks
 import yaml
+from util.read_manifest import read_manifests_from_directory
 
 
 class ContainerStack(cdk.Stack):
@@ -17,34 +18,31 @@ class ContainerStack(cdk.Stack):
 
         common_yaml_file = './yaml-common/00_namespaces.yaml'
         region_yaml_file = f'./yaml-{region}/00_ap_nginx.yaml'
+        common_manifest_directory = './yaml-common/'
+        region_manifest_directory = f'./yaml-{region}/'
 
-        # # Read common yaml
-        # with open(common_yaml_file, 'r') as stream:
-        #     common_yaml = yaml.load(stream, Loader=yaml.FullLoader)
-        #
-        # cluster.add_manifest(
-        #     f'{construct_id}-common-yaml',
-        #     common_yaml
-        # )
         # Read common yaml
-        with open(common_yaml_file, 'r') as stream:
-            common_docs = list(
-                yaml.load_all(stream, Loader=yaml.FullLoader))
-
-        for doc in common_docs:
-            cluster.add_manifest(
-                f'{doc["metadata"]["name"]}-common-yaml',
-                doc
-            )
+        # with open(common_yaml_file, 'r') as stream:
+        #     common_docs = list(
+        #         yaml.load_all(stream, Loader=yaml.FullLoader))
+        #
+        # for doc in common_docs:
+        #     cluster.add_manifest(
+        #         f'{doc["metadata"]["name"]}-common-yaml',
+        #         doc
+        #     )
+        read_manifests_from_directory(common_manifest_directory, cluster)
 
         # Read region yaml
-        with open(region_yaml_file, 'r') as stream:
-            region_yaml = yaml.load(stream, Loader=yaml.FullLoader)
+        # with open(region_yaml_file, 'r') as stream:
+        #     region_yaml = yaml.load(stream, Loader=yaml.FullLoader)
+        #
+        # cluster.add_manifest(
+        #     f'{construct_id}-{region}-yaml',
+        #     region_yaml
+        # )
 
-        cluster.add_manifest(
-            f'{construct_id}-{region}-yaml',
-            region_yaml
-        )
+        read_manifests_from_directory(region_manifest_directory, cluster)
 
         # Helm Chart - flux CD
         cluster.add_helm_chart(
